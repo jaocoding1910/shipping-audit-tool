@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 📦 Shipping Audit Tool
 
 A data auditing dashboard built with **Python + Streamlit** to detect operational issues in shipping data, such as **weight mismatches** and **SLA violations**.
@@ -57,3 +58,27 @@ The app includes:
 - Pandas
 - Streamlit
 - CSV-b
+=======
+# Shipping Audit Tool
+
+A Python tool to audit shipping data and detect operational inconsistencies such as weight mismatches and SLA violations.
+
+## ✅ Features
+- Reads shipment data from a CSV file
+- Flags weight discrepancies (actual vs. declared)
+- Flags SLA violations (delivery time > SLA)
+- Exports a report with only the problematic rows
+
+## 🧰 Tech Stack
+- Python
+- Pandas
+
+## 📁 Project Structure
+```
+data/             # sample input dataset
+output/           # generated reports
+audit.py          # main script
+requirements.txt  # dependencies
+.gitignore        # ignored files
+```
+>>>>>>> 8241082b7fbd78dd8db8d5faf636f848a689e4db

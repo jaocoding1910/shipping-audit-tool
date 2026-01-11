@@ -1,19 +1,4 @@
-"""
-Shipping Audit Tool (Core)
---------------------------
-Core audit logic (no UI here).
-
-Rules:
-- Weight mismatch: weight_kg != declared_weight_kg
-- SLA violation: delivery_days > sla_days
-
-Outputs:
-- issues_df: only problematic rows
-- audited_df: full dataset with audit columns
-"""
-
 from __future__ import annotations
-
 from pathlib import Path
 import pandas as pd
 
@@ -36,45 +21,30 @@ def validate_schema(df: pd.DataFrame) -> None:
         raise ValueError(f"Missing required columns: {sorted(missing)}")
 
 
-def run_audit(
-    df: pd.DataFrame,
-    weight_tolerance_kg: float = 0.0,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Run audit on a DataFrame.
-    weight_tolerance_kg:
-        If > 0, only flags weight issues where abs(weight - declared) > tolerance.
-    """
+def run_audit(df: pd.DataFrame, weight_tolerance_kg: float = 0.0) -> tuple[pd.DataFrame, pd.DataFrame]:
     validate_schema(df)
 
-    audited_df = df.copy()
+    audited = df.copy()
 
-    # Weight issue (supports tolerance)
-    diff = (audited_df["weight_kg"] - audited_df["declared_weight_kg"]).abs()
-    audited_df["weight_diff_kg"] = diff
+    audited["weight_diff_kg"] = (audited["weight_kg"] - audited["declared_weight_kg"]).abs()
+
     if weight_tolerance_kg > 0:
-        audited_df["weight_issue"] = audited_df["weight_diff_kg"] > weight_tolerance_kg
+        audited["weight_issue"] = audited["weight_diff_kg"] > weight_tolerance_kg
     else:
-        audited_df["weight_issue"] = audited_df["weight_kg"] != audited_df["declared_weight_kg"]
+        audited["weight_issue"] = audited["weight_kg"] != audited["declared_weight_kg"]
 
-    # SLA issue
-    audited_df["sla_issue"] = audited_df["delivery_days"] > audited_df["sla_days"]
+    audited["sla_issue"] = audited["delivery_days"] > audited["sla_days"]
 
-    # Final status
-    audited_df["audit_status"] = audited_df.apply(
-        lambda row: "ISSUE" if row["weight_issue"] or row["sla_issue"] else "OK",
+    audited["audit_status"] = audited.apply(
+        lambda r: "ISSUE" if (r["weight_issue"] or r["sla_issue"]) else "OK",
         axis=1,
     )
 
-    issues_df = audited_df[audited_df["audit_status"] == "ISSUE"].copy()
-    return audited_df, issues_df
+    issues = audited[audited["audit_status"] == "ISSUE"].copy()
+    return audited, issues
 
 
-def audit_shipments(
-    input_file: Path = INPUT_FILE,
-    output_file: Path = OUTPUT_FILE,
-    weight_tolerance_kg: float = 0.0,
-) -> Path:
+def audit_shipments(input_file: Path = INPUT_FILE, output_file: Path = OUTPUT_FILE, weight_tolerance_kg: float = 0.0) -> Path:
     input_file = Path(input_file)
     output_file = Path(output_file)
 
@@ -84,16 +54,13 @@ def audit_shipments(
     output_file.parent.mkdir(exist_ok=True)
 
     df = pd.read_csv(input_file)
-    _, issues_df = run_audit(df, weight_tolerance_kg=weight_tolerance_kg)
-
-    issues_df.to_csv(output_file, index=False)
-
-    print("✅ Audit completed.")
-    print(f"⚠️ Issues found: {len(issues_df)}")
-    print(f"📄 Report saved to: {output_file}")
+    _, issues = run_audit(df, weight_tolerance_kg=weight_tolerance_kg)
+    issues.to_csv(output_file, index=False)
 
     return output_file
 
 
 if __name__ == "__main__":
-    audit_shipments()
+    path = audit_shipments()
+    print("✅ Audit completed.")
+    print(f"📄 Report saved to: {path}")

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python
 __pycache__/
 *.pyc
@@ -13,3 +14,8 @@ output/
 data/uploaded_shipments.csv
 audit_report.csv
 audited_dataset.csv
+=======
+__pycache__/
+.venv/
+output/audit_report.csv
+>>>>>>> 8241082b7fbd78dd8db8d5faf636f848a689e4db
