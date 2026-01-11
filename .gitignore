@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Outputs
+output/
+data/uploaded_shipments.csv
+audit_report.csv
+audited_dataset.csv

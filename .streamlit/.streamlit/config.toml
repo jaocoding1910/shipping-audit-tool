@@ -1,0 +1,7 @@
+[theme]
+base="dark"
+primaryColor="#EE4D2D"            # Shopee-like orange
+backgroundColor="#0B0F14"
+secondaryBackgroundColor="#121826"
+textColor="#E6EDF3"
+font="sans serif"
